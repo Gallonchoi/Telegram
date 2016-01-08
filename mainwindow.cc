@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QObject>
 #include <QNetworkInterface>
+#include <QHostInfo>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -18,8 +19,13 @@ MainWindow::MainWindow(QWidget *parent)
       connectWindow(new ConnectWindow) {
   ui->setupUi(this);
 
-  // IP address
+// IP address
+#ifdef _WIN32
+  QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
+  QList<QHostAddress> ipAddressList = hostInfo.addresses();
+#else
   QList<QHostAddress> ipAddressList = QNetworkInterface::allAddresses();
+#endif
   QStringList ipAddresses;
   foreach (const QHostAddress &address, ipAddressList) {
     if (address.protocol() == QAbstractSocket::IPv4Protocol &&

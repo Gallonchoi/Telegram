@@ -13,7 +13,7 @@ class TcpConnection : public QObject {
   explicit TcpConnection(QTcpSocket *, Type, QObject *parent = 0);
   ~TcpConnection();
 
-  void isValid();
+  bool isValid();
   void setGreetingMsg(QJsonObject *msg) { greetingMsg = msg; }
   const Type type;
  signals:

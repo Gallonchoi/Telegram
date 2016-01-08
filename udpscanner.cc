@@ -50,13 +50,17 @@ void UdpScanner::getResponse() {
     QByteArray datagram;
     datagram.resize(udpSocket->pendingDatagramSize());
     QHostAddress *targetAddress = new QHostAddress;
-    udpSocket->readDatagram(datagram.data(), datagram.size(), targetAddress);
+    quint16 *targetPort = new quint16;
+    udpSocket->readDatagram(datagram.data(), datagram.size(), targetAddress,
+                            targetPort);
+    qDebug() << targetAddress->protocol();
     ServerStatus *serverStatus = new ServerStatus;
-    serverStatus->address = targetAddress;            // 获取对方地址
+    serverStatus->address = new QHostAddress(targetAddress->toIPv4Address());            // 获取对方地址
     serverStatus->latency = latencyTimer->elapsed();  // 获取时延
     serverStatus->userinfo = new QJsonObject(
         QJsonDocument::fromBinaryData(datagram).object());  // 用户信息
     serverStatusList->append(serverStatus);
+    delete targetAddress;
   }
   // 触发接收窗口信号
   if (!serverStatusList->isEmpty()) {

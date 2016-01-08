@@ -9,7 +9,7 @@ TcpServer::TcpServer(const quint16 port, QObject *parent)
   connect(tcpServer, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
 }
 
-void start() {
+void TcpServer::start() {
   if (tcpServer->listen(QHostAddress::Any, port)) {
     qDebug() << "TCP server start listening " << port;
   } else {

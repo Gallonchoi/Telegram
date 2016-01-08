@@ -60,6 +60,7 @@ void ScanWindow::cancelScan() {
   this->hide();
 }
 
+// 扫描到服务器
 void ScanWindow::appendServers(ServerStatusList serverStatusList) {
   QTableWidget *serverTable = ui->serverTable;
   foreach (ServerStatus *serverStatus, *serverStatusList) {
