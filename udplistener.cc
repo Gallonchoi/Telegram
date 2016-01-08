@@ -1,11 +1,11 @@
-#include "serverlistener.h"
+#include "udplistener.h"
 #include <QUdpSocket>
 #include <QHostAddress>
 
-ServerListener::ServerListener(QObject *parent)
+UdpListener::UdpListener(QObject *parent)
     : QObject(parent), udpSocket(NULL) {}
 
-void ServerListener::start() {
+void UdpListener::start() {
   if (!udpSocket) {
     delete udpSocket;
   }
@@ -16,7 +16,7 @@ void ServerListener::start() {
 }
 
 // 获取到请求, 返回应答
-void ServerListener::getRequest() {
+void UdpListener::getRequest() {
   QByteArray datagram;
   datagram.resize(udpSocket->pendingDatagramSize());
   QHostAddress *targetAddress = new QHostAddress;

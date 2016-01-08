@@ -4,7 +4,7 @@
 #include <QDialog>
 #include "serverstatus.h"
 
-class ServerScanner;
+class UdpScanner;
 class QHostAddress;
 class ServerStatus;
 
@@ -28,7 +28,7 @@ class ScanWindow : public QDialog {
 
  private:
   Ui::ScanWindow *ui;
-  ServerScanner *serverScanner;
+  UdpScanner *udpScanner;
 };
 
 #endif  // SCANWINDOW_H

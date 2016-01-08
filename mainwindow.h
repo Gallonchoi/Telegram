@@ -7,8 +7,7 @@ class ScanWindow;
 class LogWindow;
 class AboutWindow;
 class ConnectWindow;
-class ServerScanner;
-class ServerListener;
+class UdpListener;
 
 namespace Ui {
 class MainWindow;
@@ -37,8 +36,7 @@ class MainWindow : public QMainWindow {
   LogWindow *logWindow;
   AboutWindow *aboutWindow;
   ConnectWindow *connectWindow;
-  ServerScanner *serverScanner;
-  ServerListener *serverListener;
+  UdpListener *udpListener;
 };
 
 #endif  // MAINWINDOW_H

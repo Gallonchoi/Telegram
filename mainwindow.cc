@@ -4,7 +4,7 @@
 #include "logwindow.h"
 #include "aboutwindow.h"
 #include "connectwindow.h"
-#include "serverlistener.h"
+#include "udplistener.h"
 #include <QDebug>
 #include <QObject>
 #include <QNetworkInterface>
@@ -59,10 +59,10 @@ MainWindow::MainWindow(QWidget *parent)
   ui->ipAddressEdit->setText(ipAddresses.join("/"));
 
   // UDP Listener
-  serverListener = new ServerListener;
+  udpListener = new UdpListener;
   QByteArray udpResponse = ui->nameEdit->text().toUtf8();
-  serverListener->setResponse(udpResponse);
-  serverListener->start();
+  udpListener->setResponse(udpResponse);
+  udpListener->start();
 }
 
 MainWindow::~MainWindow() { delete ui; }

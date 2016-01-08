@@ -1,6 +1,6 @@
 #include "scanwindow.h"
 #include "ui_scanwindow.h"
-#include "serverscanner.h"
+#include "udpscanner.h"
 #include <QHostAddress>
 #include <QDebug>
 
@@ -13,9 +13,9 @@ ScanWindow::ScanWindow(QWidget *parent)
   QPushButton *cancelButton = ui->cancelButton;
   connect(cancelButton, SIGNAL(clicked()), this, SLOT(cancelScan()));
   QPushButton *refreshButton = ui->refreshButton;
-  serverScanner = new ServerScanner();
-  connect(refreshButton, SIGNAL(clicked()), serverScanner, SLOT(startScan()));
-  connect(serverScanner, SIGNAL(gotServerStatusList(ServerStatusList)), this,
+  udpScanner = new UdpScanner();
+  connect(refreshButton, SIGNAL(clicked()), udpScanner, SLOT(startScan()));
+  connect(udpScanner, SIGNAL(gotServerStatusList(ServerStatusList)), this,
           SLOT(appendServers(ServerStatusList)));
 
   qDebug() << "scan window is constructing";

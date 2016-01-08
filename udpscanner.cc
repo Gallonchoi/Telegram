@@ -1,21 +1,21 @@
-#include "serverscanner.h"
+#include "udpscanner.h"
 #include <QUdpSocket>
 #include <QTimer>
 #include <QDebug>
 #include <QElapsedTimer>
 #include "serverstatus.h"
 
-ServerScanner::ServerScanner(QObject *parent)
+UdpScanner::UdpScanner(QObject *parent)
     : QObject(parent),
       timeoutTimer(new QTimer),
       latencyTimer(new QElapsedTimer) {
   connect(timeoutTimer, SIGNAL(timeout()), this, SLOT(resetSocket()));
 }
 
-ServerScanner::~ServerScanner() {}
+UdpScanner::~UdpScanner() {}
 
 // 开始发送UDP广播报文扫描
-void ServerScanner::startScan(const int timeout) {
+void UdpScanner::startScan(const int timeout) {
   qDebug() << "Server scanner starts scanning";
   QByteArray datagram = "/r/n/n/nTelegram scan sender/r/n";
   udpSocket = new QUdpSocket;
@@ -26,13 +26,14 @@ void ServerScanner::startScan(const int timeout) {
 }
 
 // 重置UDP socket
-void ServerScanner::resetSocket() {
+void UdpScanner::resetSocket() {
   qDebug() << "Scanner timeout";
+  timeoutTimer->stop();
   delete udpSocket;
 }
 
 // 收到回复
-void ServerScanner::getResponse() {
+void UdpScanner::getResponse() {
   ServerStatusList serverStatusList = new QList<ServerStatus *>;
   while (udpSocket->hasPendingDatagrams()) {
     QByteArray datagram;

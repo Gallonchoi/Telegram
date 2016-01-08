@@ -1,5 +1,5 @@
-#ifndef SERVERSCANNER_H
-#define SERVERSCANNER_H
+#ifndef UDPSCANNER_H
+#define UDPSCANNER_H
 #include <QObject>
 #include "serverstatus.h"
 
@@ -9,11 +9,11 @@ class QUdpSocket;
 class QHostAddress;
 
 // 发送UDP广播扫描当前子网端口23333的服务器
-class ServerScanner : public QObject {
+class UdpScanner : public QObject {
   Q_OBJECT
  public:
-  explicit ServerScanner(QObject *parent = 0);
-  ~ServerScanner();
+    explicit UdpScanner(QObject *parent = 0);
+          ~UdpScanner();
 
  signals:
   void gotServerStatusList(ServerStatusList serverStatusList);
@@ -30,4 +30,4 @@ class ServerScanner : public QObject {
   int timeout;
 };
 
-#endif  // SERVERSCANNER_H
+#endif  // UDPSCANNER_H

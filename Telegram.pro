@@ -19,9 +19,11 @@ SOURCES +=\
     logwindow.cc \
     aboutwindow.cc \
     connectwindow.cc \
-    serverscanner.cc \
     chattingserver.cc \
-    serverlistener.cc
+    udpscanner.cc \
+    udplistener.cc \
+    tcpserver.cc \
+    tcpclient.cc
 
 HEADERS  += \
     mainwindow.h \
@@ -30,10 +32,12 @@ HEADERS  += \
     logwindow.h \
     aboutwindow.h \
     connectwindow.h \
-    serverscanner.h \
     chattingserver.h \
     serverstatus.h \
-    serverlistener.h
+    udpscanner.h \
+    udplistener.h \
+    tcpserver.h \
+    tcpclient.h
 
 FORMS += \
          mainwindow.ui \
