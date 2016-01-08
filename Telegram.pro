@@ -20,7 +20,8 @@ SOURCES +=\
     aboutwindow.cc \
     connectwindow.cc \
     serverscanner.cc \
-    chattingserver.cc
+    chattingserver.cc \
+    serverlistener.cc
 
 HEADERS  += \
     mainwindow.h \
@@ -31,7 +32,8 @@ HEADERS  += \
     connectwindow.h \
     serverscanner.h \
     chattingserver.h \
-    serverstatus.h
+    serverstatus.h \
+    serverlistener.h
 
 FORMS += \
          mainwindow.ui \

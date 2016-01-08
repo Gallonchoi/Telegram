@@ -8,6 +8,7 @@ class LogWindow;
 class AboutWindow;
 class ConnectWindow;
 class ServerScanner;
+class ServerListener;
 
 namespace Ui {
 class MainWindow;
@@ -37,6 +38,7 @@ class MainWindow : public QMainWindow {
   AboutWindow *aboutWindow;
   ConnectWindow *connectWindow;
   ServerScanner *serverScanner;
+  ServerListener *serverListener;
 };
 
 #endif  // MAINWINDOW_H

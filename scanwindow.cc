@@ -13,7 +13,7 @@ ScanWindow::ScanWindow(QWidget *parent)
   QPushButton *cancelButton = ui->cancelButton;
   connect(cancelButton, SIGNAL(clicked()), this, SLOT(cancelScan()));
   QPushButton *refreshButton = ui->refreshButton;
-  serverScanner = new ServerScanner(10000);
+  serverScanner = new ServerScanner();
   connect(refreshButton, SIGNAL(clicked()), serverScanner, SLOT(startScan()));
   connect(serverScanner, SIGNAL(gotServerStatusList(ServerStatusList)), this,
           SLOT(appendServers(ServerStatusList)));

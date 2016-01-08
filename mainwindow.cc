@@ -4,6 +4,7 @@
 #include "logwindow.h"
 #include "aboutwindow.h"
 #include "connectwindow.h"
+#include "serverlistener.h"
 #include <QDebug>
 #include <QObject>
 #include <QNetworkInterface>
@@ -56,17 +57,26 @@ MainWindow::MainWindow(QWidget *parent)
       ipAddresses << address.toString();
   }
   ui->ipAddressEdit->setText(ipAddresses.join("/"));
+
+  // UDP Listener
+  serverListener = new ServerListener;
+  QByteArray udpResponse = ui->nameEdit->text().toUtf8();
+  serverListener->setResponse(udpResponse);
+  serverListener->start();
 }
 
 MainWindow::~MainWindow() { delete ui; }
 
+// 显示'扫描'窗口
 void MainWindow::showScanWindow() {
   this->setEnabled(false);
   scanWindow->show();
 }
 
+// 隐藏'扫描'窗口
 void MainWindow::hideScanWindow() { this->setEnabled(true); }
 
+// 更新'输入框'长度
 void MainWindow::refreshMsgLength(const QString &content) {
   QLabel *msgLengthLabel = ui->messageLengthLabel;
   QLineEdit *msgEdit = ui->messageEdit;
@@ -74,12 +84,16 @@ void MainWindow::refreshMsgLength(const QString &content) {
       QString("%1/%2").arg(content.length(), 2).arg(msgEdit->maxLength()));
 }
 
+// 显示'日志'窗口
 void MainWindow::showLogWindow() { logWindow->show(); }
 
+// 显示'关于'窗口
 void MainWindow::showAboutWindow() { aboutWindow->show(); }
 
+// 显示'连接'窗口
 void MainWindow::showConnectWindow() { connectWindow->show(); }
 
+// 更换通信频道动作
 void MainWindow::changeChannelTo(const int row, const int) {
   QTextBrowser *inboxBrowser = ui->inboxBrowser;
   QTableWidget *connTable = ui->connTable;

@@ -8,24 +8,25 @@ class QElapsedTimer;
 class QUdpSocket;
 class QHostAddress;
 
+// 发送UDP广播扫描当前子网端口23333的服务器
 class ServerScanner : public QObject {
   Q_OBJECT
  public:
-  explicit ServerScanner(const unsigned port);
+  explicit ServerScanner(QObject *parent = 0);
   ~ServerScanner();
 
-  const unsigned port;
  signals:
   void gotServerStatusList(ServerStatusList serverStatusList);
 
  public slots:
   void startScan(const int timeout = 5);
   void getResponse();
+  void resetSocket();
 
  private:
   QUdpSocket *udpSocket;
   QTimer *timeoutTimer;
-  QElapsedTimer *delayTimer;
+  QElapsedTimer *latencyTimer;
   int timeout;
 };
 
