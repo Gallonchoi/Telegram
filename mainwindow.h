@@ -8,6 +8,7 @@ class LogWindow;
 class AboutWindow;
 class ConnectWindow;
 class UdpListener;
+class QJsonObject;
 
 namespace Ui {
 class MainWindow;
@@ -27,8 +28,8 @@ class MainWindow : public QMainWindow {
   void showAboutWindow();
   void showConnectWindow();
   void refreshMsgLength(const QString &content);
-
   void changeChannelTo(const int row, const int column);
+  void changeUsername(const QString &);
 
  private:
   Ui::MainWindow *ui;
@@ -37,6 +38,8 @@ class MainWindow : public QMainWindow {
   AboutWindow *aboutWindow;
   ConnectWindow *connectWindow;
   UdpListener *udpListener;
+  QJsonObject *scannerRequest;
+  QJsonObject *listenerResponse;
 };
 
 #endif  // MAINWINDOW_H

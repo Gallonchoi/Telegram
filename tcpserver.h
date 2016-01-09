@@ -2,21 +2,24 @@
 #define TCPSERVER_H
 
 #include <QObject>
+
 class QTcpServer;
 class QTcpSocket;
+class TcpConnection;
 
 class TcpServer : public QObject {
   Q_OBJECT
  public:
-  explicit TcpServer(QObject *parent = 0);
+  explicit TcpServer(const quint16 port, QObject *parent = 0);
 
-  void listen(const quint16 port);
+  void start();
 
+  const quint16 port;
  signals:
-  void gotNewConnection(QTcpSocket *);
+  void gotNewConnection(TcpConnection *);
 
  public slots:
-  void newConnection();
+  void acceptConnection();
 
  private:
   QTcpServer *tcpServer;

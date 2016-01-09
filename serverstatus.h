@@ -1,14 +1,14 @@
 #ifndef SERVERSTATUS_H
 #define SERVERSTATUS_H
 
-#include <QString>
 #include <QList>
 #include <QHostAddress>
+#include <QByteArray>
 
 struct ServerStatus {
   QHostAddress* address;
-  unsigned delay;
-  QString username;
+  unsigned latency;
+  QJsonObject* userinfo;
 };
 
 typedef QList<ServerStatus*>* ServerStatusList;

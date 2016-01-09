@@ -2,20 +2,29 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QHostAddress>
+#include "tcpconnection.h"
 
-TcpServer::TcpServer(QObject *parent)
-    : QObject(parent), tcpServer(new QTcpServer) {
-  connect(tcpServer, SIGNAL(newConnection()), this, SLOT(newConnection()));
-  if (tcpServer->listen(QHostAddress::Any, 23333)) {
-    qDebug() << "TCP server start listening 23333";
+TcpServer::TcpServer(const quint16 port, QObject *parent)
+    : QObject(parent), port(port), tcpServer(new QTcpServer) {
+  connect(tcpServer, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
+}
+
+void start() {
+  if (tcpServer->listen(QHostAddress::Any, port)) {
+    qDebug() << "TCP server start listening " << port;
   } else {
     qDebug() << "TCP server cannot start";
   }
 }
 
-void TcpServer::newConnection() {
+void TcpServer::acceptConnection() {
   QTcpSocket *tcpSocket = tcpServer->nextPendingConnection();
   qDebug() << "Got new connection from " << tcpSocket->peerAddress().toString()
            << ":" << tcpSocket->peerPort();
-  gotNewConnection(tcpSocket);
+  TcpConnection *connection =
+      new TcpConnection(tcpSocket, TcpConnection::Type::Server);
+  if (connection->isValid())
+    gotNewConnection(connection);
+  else
+    delete connection;
 }

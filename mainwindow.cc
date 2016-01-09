@@ -17,11 +17,27 @@ MainWindow::MainWindow(QWidget *parent)
       aboutWindow(new AboutWindow),
       connectWindow(new ConnectWindow) {
   ui->setupUi(this);
+
+  // IP address
+  QList<QHostAddress> ipAddressList = QNetworkInterface::allAddresses();
+  QStringList ipAddresses;
+  foreach (const QHostAddress &address, ipAddressList) {
+    if (address.protocol() == QAbstractSocket::IPv4Protocol &&
+        address != QHostAddress(QHostAddress::LocalHost))
+      ipAddresses << address.toString();
+  }
+  ui->ipAddressEdit->setText(ipAddresses.join("/"));
+
   // Scan window settings
+  scannerRequest = new QJsonObject{{"username", ui->nameEdit->text()},
+                                   {"ip", ui->ipAddressEdit->text()}};
+  scanWindow->initScanner(23333, scannerRequest);
+  // 显示窗口事件
   QPushButton *scanButton = ui->scanButton;
   connect(scanButton, SIGNAL(clicked()), this, SLOT(showScanWindow()));
   this->setWindowTitle("Telegram");
   this->setFixedSize(this->width(), this->height());
+  // 隐藏窗口
   connect(scanWindow, SIGNAL(hid()), this, SLOT(hideScanWindow()));
   // Message sender settings
   QLineEdit *msgEdit = ui->messageEdit;
@@ -48,20 +64,13 @@ MainWindow::MainWindow(QWidget *parent)
   connect(connTable, SIGNAL(cellDoubleClicked(int, int)), this,
           SLOT(changeChannelTo(int, int)));
 
-  // IP address
-  QList<QHostAddress> ipAddressList = QNetworkInterface::allAddresses();
-  QStringList ipAddresses;
-  foreach (const QHostAddress &address, ipAddressList) {
-    if (address.protocol() == QAbstractSocket::IPv4Protocol &&
-        address != QHostAddress(QHostAddress::LocalHost))
-      ipAddresses << address.toString();
-  }
-  ui->ipAddressEdit->setText(ipAddresses.join("/"));
-
-  // UDP Listener
-  udpListener = new UdpListener;
-  QByteArray udpResponse = ui->nameEdit->text().toUtf8();
-  udpListener->setResponse(udpResponse);
+  // UDP 监听
+  udpListener = new UdpListener(23333);
+  listenerResponse = new QJsonObject{{"username", ui->nameEdit->text()},
+                                     {"ip", ui->ipAddressEdit->text()}};
+  udpListener->setResponse(listenerResponse);
+  connect(ui->nameEdit, SIGNAL(textChanged(QString)),
+          SLOT(changeUsername(QString)));
   udpListener->start();
 }
 
@@ -101,4 +110,10 @@ void MainWindow::changeChannelTo(const int row, const int) {
   const QString ipAddress = ui->connTable->item(row, 1)->text();
   inboxBrowser->append(
       QString("Changing channel to %1(%2)").arg(username).arg(ipAddress));
+}
+
+// 修改用户名
+void MainWindow::changeUsername(const QString &username) {
+  (*listenerResponse)["username"] = username;
+  (*scannerRequest)["username"] = username;
 }

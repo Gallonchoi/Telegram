@@ -1,6 +1,7 @@
 #ifndef UDPSCANNER_H
 #define UDPSCANNER_H
 #include <QObject>
+#include <QJsonObject>
 #include "serverstatus.h"
 
 class QTimer;
@@ -12,22 +13,28 @@ class QHostAddress;
 class UdpScanner : public QObject {
   Q_OBJECT
  public:
-    explicit UdpScanner(QObject *parent = 0);
-          ~UdpScanner();
+  explicit UdpScanner(const quint16 port, QObject *parent = 0);
+  ~UdpScanner();
+
+  void setGreetingMsg(QJsonObject *msg) { greetingMsg = msg; }
+
+  const quint16 port;
 
  signals:
   void gotServerStatusList(ServerStatusList serverStatusList);
+  void timeout();
 
  public slots:
-  void startScan(const int timeout = 5);
+  void startScan(const int timeout = 5000);
   void getResponse();
   void resetSocket();
+  void updateGreeting(QJsonObject *msg) { greetingMsg = msg; }
 
  private:
   QUdpSocket *udpSocket;
   QTimer *timeoutTimer;
   QElapsedTimer *latencyTimer;
-  int timeout;
+  QJsonObject *greetingMsg;
 };
 
 #endif  // UDPSCANNER_H

@@ -3,13 +3,18 @@
 #include <QTimer>
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QJsonObject>
+#include <QJsonDocument>
 #include "serverstatus.h"
 
-UdpScanner::UdpScanner(QObject *parent)
+UdpScanner::UdpScanner(const quint16 port, QObject *parent)
     : QObject(parent),
+      port(port),
       timeoutTimer(new QTimer),
       latencyTimer(new QElapsedTimer) {
   connect(timeoutTimer, SIGNAL(timeout()), this, SLOT(resetSocket()));
+
+  greetingMsg = new QJsonObject{{"username", "Unknown"}, {"ip", "Unknown"}};
 }
 
 UdpScanner::~UdpScanner() {}
@@ -17,12 +22,17 @@ UdpScanner::~UdpScanner() {}
 // 开始发送UDP广播报文扫描
 void UdpScanner::startScan(const int timeout) {
   qDebug() << "Server scanner starts scanning";
-  QByteArray datagram = "/r/n/n/nTelegram scan sender/r/n";
+
+  // 初始化socket
   udpSocket = new QUdpSocket;
   connect(udpSocket, SIGNAL(readyRead()), this, SLOT(getResponse()));
-  udpSocket->writeDatagram(datagram, QHostAddress::Broadcast, 23333);
+  // 发送问候
+  QJsonDocument data(*greetingMsg);
+  QByteArray datagram = data.toBinaryData();
+  udpSocket->writeDatagram(datagram, QHostAddress::Broadcast, port);
+  // 初始化时延计时器和超时计时器
   latencyTimer->start();
-  timeoutTimer->start(timeout * 1000);
+  timeoutTimer->start(timeout);
 }
 
 // 重置UDP socket
@@ -30,6 +40,7 @@ void UdpScanner::resetSocket() {
   qDebug() << "Scanner timeout";
   timeoutTimer->stop();
   delete udpSocket;
+  timeout();
 }
 
 // 收到回复
@@ -41,14 +52,13 @@ void UdpScanner::getResponse() {
     QHostAddress *targetAddress = new QHostAddress;
     udpSocket->readDatagram(datagram.data(), datagram.size(), targetAddress);
     ServerStatus *serverStatus = new ServerStatus;
-    serverStatus->address = targetAddress;
-    int latency = latencyTimer->elapsed();  // 获取时延
-    serverStatus->delay = latency > 0 ? latency : 0;
-    serverStatus->username = datagram;
-    qDebug() << serverStatus->username << serverStatus->address
-             << serverStatus->delay;
+    serverStatus->address = targetAddress;            // 获取对方地址
+    serverStatus->latency = latencyTimer->elapsed();  // 获取时延
+    serverStatus->userinfo = new QJsonObject(
+        QJsonDocument::fromBinaryData(datagram).object());  // 用户信息
     serverStatusList->append(serverStatus);
   }
+  // 触发接收窗口信号
   if (!serverStatusList->isEmpty()) {
     gotServerStatusList(serverStatusList);
   }

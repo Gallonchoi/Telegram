@@ -6,6 +6,7 @@
 
 QT += core gui network
 
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Telegram
@@ -23,7 +24,10 @@ SOURCES +=\
     udpscanner.cc \
     udplistener.cc \
     tcpserver.cc \
-    tcpclient.cc
+    tcpclient.cc \
+    filesender.cc \
+    filereceiver.cc \
+    tcpconnection.cc
 
 HEADERS  += \
     mainwindow.h \
@@ -37,7 +41,10 @@ HEADERS  += \
     udpscanner.h \
     udplistener.h \
     tcpserver.h \
-    tcpclient.h
+    tcpclient.h \
+    filesender.h \
+    filereceiver.h \
+    tcpconnection.h
 
 FORMS += \
          mainwindow.ui \
@@ -45,3 +52,7 @@ FORMS += \
     logwindow.ui \
     aboutwindow.ui \
     connectwindow.ui
+
+CONFIG += c++11
+
+QMAKE_CXXFLAGS += -std=c++11

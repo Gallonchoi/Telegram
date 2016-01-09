@@ -2,7 +2,7 @@
 #define UDPLISTENER_H
 
 #include <QObject>
-#include <QByteArray>
+#include <QJsonObject>
 
 class QUdpSocket;
 class QHostAddress;
@@ -11,19 +11,24 @@ class QHostAddress;
 class UdpListener : public QObject {
   Q_OBJECT
  public:
-  explicit UdpListener(QObject *parent = 0);
-
-  void setResponse(const QByteArray &newResponse) { response = newResponse; }
+  explicit UdpListener(const quint16 port, QObject *parent = 0);
 
   void start();
- signals:
 
+  const quint16 port;
+  void setResponse(QJsonObject *res) { response = res; }
+
+ signals:
+  void gotRequest();
+
+ public slots:
+  void updateResponse(QJsonObject *res) { response = res; }
  private slots:
   void getRequest();
 
  private:
   QUdpSocket *udpSocket;
-  QByteArray response;
+  QJsonObject *response;
 };
 
 #endif  // UDPLISTENER_H
