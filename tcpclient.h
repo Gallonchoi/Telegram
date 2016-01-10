@@ -2,10 +2,11 @@
 #define TCPCLIENT_H
 
 #include <QObject>
-#include <QAbstractSocket>
+#include <QJsonObject>
 
-class QTcpSocket;
 class QHostAddress;
+class TcpConnection;
+class Greeting;
 
 class TcpClient : public QObject {
   Q_OBJECT
@@ -13,15 +14,15 @@ class TcpClient : public QObject {
   explicit TcpClient(QObject *parent = 0);
 
   void connectTo(QHostAddress *host, const quint16 port);
+  void setGreetingMsg(Greeting *msg) { greetingMsg = msg; }
  signals:
-  void connected(QTcpSocket *);
+  void connected(TcpConnection *);
   void gotErrors(const QString &);
  private slots:
-  void displayErrors(QAbstractSocket::SocketError);
-  void getConnect();
+  void displayErrors(const QString &);
 
  private:
-  QTcpSocket *tcpSocket;
+  Greeting *greetingMsg;
 };
 
 #endif  // TCPCLIENT_H

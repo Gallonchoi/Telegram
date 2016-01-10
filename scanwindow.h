@@ -7,7 +7,9 @@
 class UdpScanner;
 class QHostAddress;
 class ServerStatus;
-class QJsonObject;
+class Greeting;
+class TcpConnection;
+class TcpClient;
 
 namespace Ui {
 class ScanWindow;
@@ -17,24 +19,27 @@ class ScanWindow : public QDialog {
   Q_OBJECT
 
  public:
-  explicit ScanWindow(QWidget *parent = 0);
+  explicit ScanWindow(const QString &title, QWidget *parent = 0);
   ~ScanWindow();
 
-  void initScanner(const quint16 port, QJsonObject *request);
+  void initScanner(const quint16 port, Greeting *request);
+  void initTcpClient(TcpClient *tcpClient) { this->tcpClient = tcpClient; }
 
  signals:
   void hid();
+  void gotNewConnection(TcpConnection *);
 
  private slots:
   void appendServers(ServerStatusList);
   void finishScan();
   void startScan();
   void cancelScan();
+  void tryToConnect(int, int);
 
  private:
   Ui::ScanWindow *ui;
   UdpScanner *udpScanner;
-  ServerStatusList serverStatusList;
+  TcpClient *tcpClient;
 };
 
 #endif  // SCANWINDOW_H

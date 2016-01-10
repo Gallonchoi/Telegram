@@ -6,6 +6,7 @@
 
 class QUdpSocket;
 class QHostAddress;
+class Greeting;
 
 // 监听端口23333的UDP
 class UdpListener : public QObject {
@@ -16,19 +17,17 @@ class UdpListener : public QObject {
   void start();
 
   const quint16 port;
-  void setResponse(QJsonObject *res) { response = res; }
+  void setGreetingMsg(Greeting *msg) { greetingMsg = msg; }
 
  signals:
   void gotRequest();
 
- public slots:
-  void updateResponse(QJsonObject *res) { response = res; }
  private slots:
   void getRequest();
 
  private:
   QUdpSocket *udpSocket;
-  QJsonObject *response;
+  Greeting *greetingMsg;
 };
 
 #endif  // UDPLISTENER_H

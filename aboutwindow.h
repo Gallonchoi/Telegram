@@ -11,7 +11,7 @@ class AboutWindow : public QDialog {
   Q_OBJECT
 
  public:
-  explicit AboutWindow(QWidget *parent = 0);
+  explicit AboutWindow(const QString &title, QWidget *parent = 0);
   ~AboutWindow();
 
  private slots:

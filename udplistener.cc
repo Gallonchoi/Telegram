@@ -1,12 +1,11 @@
 #include "udplistener.h"
+#include "greeting.h"
 #include <QUdpSocket>
 #include <QHostAddress>
 #include <QJsonDocument>
 
 UdpListener::UdpListener(const quint16 port, QObject *parent)
-    : port(port), QObject(parent), udpSocket(NULL) {
-  response = new QJsonObject({{"username", "Unknown"}, {"ip", "Unknown"}});
-}
+    : port(port), QObject(parent), udpSocket(NULL) {}
 
 void UdpListener::start() {
   if (!udpSocket) {
@@ -31,7 +30,7 @@ void UdpListener::getRequest() {
   qDebug() << "Listener get: "
            << QJsonDocument::fromBinaryData(datagram).toJson();
   // 返回应答
-  QJsonDocument data(*response);
+  QJsonDocument data(*(greetingMsg->msg));
   QByteArray res = data.toBinaryData();
   udpSocket->writeDatagram(res, *targetAddress, *targetPort);
 }

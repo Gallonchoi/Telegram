@@ -2,11 +2,11 @@
 #include "ui_connectwindow.h"
 #include <QRegExpValidator>
 
-ConnectWindow::ConnectWindow(QWidget *parent)
+ConnectWindow::ConnectWindow(const QString &title, QWidget *parent)
     : QDialog(parent), ui(new Ui::connectWindow) {
   ui->setupUi(this);
   this->setFixedSize(this->width(), this->height());
-  this->setWindowTitle("Connect to ...");
+  this->setWindowTitle(title);
   QPushButton *cancelButton = ui->cancelButton;
   connect(cancelButton, SIGNAL(clicked()), this, SLOT(hid()));
 

@@ -17,14 +17,13 @@ void TcpServer::start() {
   }
 }
 
+// 收到新连接
 void TcpServer::acceptConnection() {
-  QTcpSocket *tcpSocket = tcpServer->nextPendingConnection();
+  auto tcpSocket = tcpServer->nextPendingConnection();
   qDebug() << "Got new connection from " << tcpSocket->peerAddress().toString()
            << ":" << tcpSocket->peerPort();
-  TcpConnection *connection =
-      new TcpConnection(tcpSocket, TcpConnection::Type::Server);
-  if (connection->isValid())
-    gotNewConnection(connection);
-  else
-    delete connection;
+  auto connection =
+      new TcpConnection(tcpSocket, TcpConnection::Type::Server, greetingMsg);
+  connect(connection, SIGNAL(validated(TcpConnection *)), this,
+          SIGNAL(gotNewConnection(TcpConnection *)));
 }

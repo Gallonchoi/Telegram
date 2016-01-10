@@ -11,7 +11,7 @@ class LogWindow : public QDialog {
   Q_OBJECT
 
  public:
-  explicit LogWindow(QWidget *parent = 0);
+  explicit LogWindow(const QString &title, QWidget *parent = 0);
   ~LogWindow();
 
  private slots:

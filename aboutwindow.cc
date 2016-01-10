@@ -1,11 +1,11 @@
 #include "aboutwindow.h"
 #include "ui_aboutwindow.h"
 
-AboutWindow::AboutWindow(QWidget *parent)
+AboutWindow::AboutWindow(const QString &title, QWidget *parent)
     : QDialog(parent), ui(new Ui::AboutWindow) {
   ui->setupUi(this);
   this->setFixedSize(this->width(), this->height());
-  this->setWindowTitle("About");
+  this->setWindowTitle(title);
   QPushButton *closeButton = ui->closeButton;
   connect(closeButton, SIGNAL(clicked()), this, SLOT(hid()));
 }

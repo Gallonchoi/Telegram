@@ -5,24 +5,27 @@
 #include <QJsonObject>
 
 class QTcpSocket;
+class Greeting;
 
 class TcpConnection : public QObject {
   Q_OBJECT
  public:
   enum class Type { Server, Client };
-  explicit TcpConnection(QTcpSocket *, Type, QObject *parent = 0);
+  TcpConnection(QTcpSocket *, Type, Greeting *, QObject *parent = 0);
   ~TcpConnection();
 
-  bool isValid();
-  void setGreetingMsg(QJsonObject *msg) { greetingMsg = msg; }
+  QJsonObject getUserInfo() const { return userInfo; }
   const Type type;
  signals:
+  void validated(TcpConnection *);
 
- public slots:
+ private slots:
+  void recvGreeting();
 
  private:
   QTcpSocket *tcpSocket;
-  QJsonObject *greetingMsg;
+  Greeting *greetingMsg;
+  QJsonObject userInfo;
 };
 
 #endif  // TCPCONNECTION_H

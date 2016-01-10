@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include "serverstatus.h"
+#include "greeting.h"
 
 UdpScanner::UdpScanner(const quint16 port, QObject *parent)
     : QObject(parent),
@@ -13,8 +14,6 @@ UdpScanner::UdpScanner(const quint16 port, QObject *parent)
       timeoutTimer(new QTimer),
       latencyTimer(new QElapsedTimer) {
   connect(timeoutTimer, SIGNAL(timeout()), this, SLOT(resetSocket()));
-
-  greetingMsg = new QJsonObject{{"username", "Unknown"}, {"ip", "Unknown"}};
 }
 
 UdpScanner::~UdpScanner() {}
@@ -27,7 +26,7 @@ void UdpScanner::startScan(const int timeout) {
   udpSocket = new QUdpSocket;
   connect(udpSocket, SIGNAL(readyRead()), this, SLOT(getResponse()));
   // 发送问候
-  QJsonDocument data(*greetingMsg);
+  QJsonDocument data(*(greetingMsg->msg));
   QByteArray datagram = data.toBinaryData();
   udpSocket->writeDatagram(datagram, QHostAddress::Broadcast, port);
   // 初始化时延计时器和超时计时器
@@ -53,14 +52,16 @@ void UdpScanner::getResponse() {
     quint16 *targetPort = new quint16;
     udpSocket->readDatagram(datagram.data(), datagram.size(), targetAddress,
                             targetPort);
-    qDebug() << targetAddress->protocol();
     ServerStatus *serverStatus = new ServerStatus;
-    serverStatus->address = new QHostAddress(targetAddress->toIPv4Address());            // 获取对方地址
+    // NOTE: 对方地址默认为IPv6， 手动转换为IPv4
+    serverStatus->address =
+        new QHostAddress(targetAddress->toIPv4Address());  // 获取对方地址
+    delete targetAddress;
     serverStatus->latency = latencyTimer->elapsed();  // 获取时延
+    serverStatus->port = port;
     serverStatus->userinfo = new QJsonObject(
         QJsonDocument::fromBinaryData(datagram).object());  // 用户信息
     serverStatusList->append(serverStatus);
-    delete targetAddress;
   }
   // 触发接收窗口信号
   if (!serverStatusList->isEmpty()) {

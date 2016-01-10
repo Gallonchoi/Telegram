@@ -5,39 +5,46 @@
 #include "aboutwindow.h"
 #include "connectwindow.h"
 #include "udplistener.h"
+#include "tcpserver.h"
+#include "tcpclient.h"
+#include "tcpconnection.h"
 #include <QDebug>
 #include <QObject>
 #include <QNetworkInterface>
 #include <QHostInfo>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent),
-      ui(new Ui::MainWindow),
-      scanWindow(new ScanWindow),
-      logWindow(new LogWindow),
-      aboutWindow(new AboutWindow),
-      connectWindow(new ConnectWindow) {
+MainWindow::MainWindow(const QString &title, QWidget *parent)
+    : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
+  this->setWindowTitle(title);
+  this->setFixedSize(this->width(), this->height());
 
-// IP address
-#ifdef _WIN32
-  QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
-  QList<QHostAddress> ipAddressList = hostInfo.addresses();
-#else
-  QList<QHostAddress> ipAddressList = QNetworkInterface::allAddresses();
-#endif
-  QStringList ipAddresses;
-  foreach (const QHostAddress &address, ipAddressList) {
-    if (address.protocol() == QAbstractSocket::IPv4Protocol &&
-        address != QHostAddress(QHostAddress::LocalHost))
-      ipAddresses << address.toString();
-  }
-  ui->ipAddressEdit->setText(ipAddresses.join("/"));
+  auto scanButton = ui->scanButton;
+  auto logButton = ui->logButton;
+  auto connectToButton = ui->connectToButton;
+  auto aboutButton = ui->aboutButton;
 
-  // Scan window settings
-  scannerRequest = new QJsonObject{{"username", ui->nameEdit->text()},
+  connect(scanButton, SIGNAL(clicked(bool)), this,
+          SIGNAL(scanButtonClicked(bool)));
+  connect(logButton, SIGNAL(clicked(bool)), this,
+          SIGNAL(logButtonClicked(bool)));
+  connect(connectToButton, SIGNAL(clicked(bool)), this,
+          SIGNAL(connectButtonClicked(bool)));
+  connect(aboutButton, SIGNAL(clicked(bool)), this,
+          SIGNAL(aboutButtonClicked(bool)));
+
+  auto nameEdit = ui->nameEdit;
+
+  connect(nameEdit, SIGNAL(textChanged(QString)), this,
+          SIGNAL(nameEditChanged(QString)));
+
+  // 扫描窗口设置
+  // 初始化广播扫描器
+  /*scannerRequest = new QJsonObject{{"username", ui->nameEdit->text()},
                                    {"ip", ui->ipAddressEdit->text()}};
   scanWindow->initScanner(23333, scannerRequest);
+  connect(scanWindow, SIGNAL(gotNewConnection(TcpConnection *)), this,
+          SLOT(getNewConnection(TcpConnection *)));
   // 显示窗口事件
   QPushButton *scanButton = ui->scanButton;
   connect(scanButton, SIGNAL(clicked()), this, SLOT(showScanWindow()));
@@ -45,51 +52,17 @@ MainWindow::MainWindow(QWidget *parent)
   this->setFixedSize(this->width(), this->height());
   // 隐藏窗口
   connect(scanWindow, SIGNAL(hid()), this, SLOT(hideScanWindow()));
-  // Message sender settings
+  // 信息发送设置
   QLineEdit *msgEdit = ui->messageEdit;
   connect(msgEdit, SIGNAL(textChanged(QString)), this,
           SLOT(refreshMsgLength(QString)));
   QLabel *msgLengthLabel = ui->messageLengthLabel;
   msgLengthLabel->setText(QString("%1/%2")
                               .arg(msgEdit->text().length(), 2)
-                              .arg(msgEdit->maxLength()));
-  // Log window settings
-  QPushButton *logButton = ui->logButton;
-  connect(logButton, SIGNAL(clicked()), this, SLOT(showLogWindow()));
-
-  // About window settings
-  QPushButton *aboutButton = ui->aboutButton;
-  connect(aboutButton, SIGNAL(clicked()), this, SLOT(showAboutWindow()));
-
-  // Connect window settings
-  QPushButton *connectButton = ui->connectToButton;
-  connect(connectButton, SIGNAL(clicked()), this, SLOT(showConnectWindow()));
-
-  // Connections table settings
-  QTableWidget *connTable = ui->connTable;
-  connect(connTable, SIGNAL(cellDoubleClicked(int, int)), this,
-          SLOT(changeChannelTo(int, int)));
-
-  // UDP 监听
-  udpListener = new UdpListener(23333);
-  listenerResponse = new QJsonObject{{"username", ui->nameEdit->text()},
-                                     {"ip", ui->ipAddressEdit->text()}};
-  udpListener->setResponse(listenerResponse);
-  connect(ui->nameEdit, SIGNAL(textChanged(QString)),
-          SLOT(changeUsername(QString)));
-  udpListener->start();
+                              .arg(msgEdit->maxLength())); */
 }
 
 MainWindow::~MainWindow() { delete ui; }
-
-// 显示'扫描'窗口
-void MainWindow::showScanWindow() {
-  this->setEnabled(false);
-  scanWindow->show();
-}
-
-// 隐藏'扫描'窗口
-void MainWindow::hideScanWindow() { this->setEnabled(true); }
 
 // 更新'输入框'长度
 void MainWindow::refreshMsgLength(const QString &content) {
@@ -99,27 +72,41 @@ void MainWindow::refreshMsgLength(const QString &content) {
       QString("%1/%2").arg(content.length(), 2).arg(msgEdit->maxLength()));
 }
 
-// 显示'日志'窗口
-void MainWindow::showLogWindow() { logWindow->show(); }
+QString MainWindow::getName() const { return ui->nameEdit->text(); }
 
-// 显示'关于'窗口
-void MainWindow::showAboutWindow() { aboutWindow->show(); }
+void MainWindow::setName(const QString &) {}
 
-// 显示'连接'窗口
-void MainWindow::showConnectWindow() { connectWindow->show(); }
+void MainWindow::appendConnection(TcpConnection *conn) {
+  auto userInfo = conn->getUserInfo();
+  qDebug() << conn << userInfo;
+  //  qDebug() << (*userInfo)["name"];
+}
 
 // 更换通信频道动作
-void MainWindow::changeChannelTo(const int row, const int) {
-  QTextBrowser *inboxBrowser = ui->inboxBrowser;
-  QTableWidget *connTable = ui->connTable;
-  const QString username = connTable->item(row, 0)->text();
-  const QString ipAddress = ui->connTable->item(row, 1)->text();
-  inboxBrowser->append(
-      QString("Changing channel to %1(%2)").arg(username).arg(ipAddress));
+void MainWindow::changeChannelTo(TcpConnection *) {
+  //  QTextBrowser *inboxBrowser = ui->inboxBrowser;
+  //  QTableWidget *connTable = ui->connTable;
+  //  const QString username = connTable->item(row, 0)->text();
+  //  const QString ipAddress = connTable->item(row, 1)->text();
+  //  inboxBrowser->append(
+  //      QString("Changing channel to %1(%2)").arg(username).arg(ipAddress));
 }
 
-// 修改用户名
-void MainWindow::changeUsername(const QString &username) {
-  (*listenerResponse)["username"] = username;
-  (*scannerRequest)["username"] = username;
-}
+// 收到新连接
+// void MainWindow::getNewConnection(TcpConnection *conn) {
+//  if (conn->type == TcpConnection::Type::Server) {
+//    serverConnections.append(conn);
+//    ui->serverConnEdit->setText(QString::number(serverConnections.size()));
+//  } else {
+//    clientConnections.append(conn);
+//    ui->clientConnEdit->setText(QString::number(clientConnections.size()));
+//  }
+//  auto userInfo = conn->userInfo;
+
+//  QTableWidget *connTable = ui->connTable;
+//  connTable->insertRow(connTable->rowCount());
+//  auto username = new QTableWidgetItem((*userInfo)["username"].toString());
+//  auto ip = new QTableWidgetItem((*userInfo)["ip"].toString());
+//  connTable->setItem(connTable->rowCount() - 1, 0, username);
+//  connTable->setItem(connTable->rowCount() - 1, 1, ip);
+//}

@@ -11,7 +11,7 @@ class ConnectWindow : public QDialog {
   Q_OBJECT
 
  public:
-  explicit ConnectWindow(QWidget *parent = 0);
+  explicit ConnectWindow(const QString &title, QWidget *parent = 0);
   ~ConnectWindow();
 
  private slots:

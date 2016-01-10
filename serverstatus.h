@@ -8,6 +8,7 @@
 struct ServerStatus {
   QHostAddress* address;
   unsigned latency;
+  quint16 port;
   QJsonObject* userinfo;
 };
 

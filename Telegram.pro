@@ -16,7 +16,6 @@ SOURCES +=\
     main.cc \
     mainwindow.cc \
     scanwindow.cc \
-    telegram.cc \
     logwindow.cc \
     aboutwindow.cc \
     connectwindow.cc \
@@ -27,12 +26,12 @@ SOURCES +=\
     tcpclient.cc \
     filesender.cc \
     filereceiver.cc \
-    tcpconnection.cc
+    tcpconnection.cc \
+    greeting.cc
 
 HEADERS  += \
     mainwindow.h \
     scanwindow.h \
-    telegram.h \
     logwindow.h \
     aboutwindow.h \
     connectwindow.h \
@@ -44,7 +43,8 @@ HEADERS  += \
     tcpclient.h \
     filesender.h \
     filereceiver.h \
-    tcpconnection.h
+    tcpconnection.h \
+    greeting.h
 
 FORMS += \
          mainwindow.ui \
