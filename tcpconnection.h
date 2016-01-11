@@ -15,11 +15,23 @@ class TcpConnection : public QObject {
   ~TcpConnection();
 
   QJsonObject getUserInfo() const { return userInfo; }
-  const Type type;
+  const Type type;  // 在此连接中对方的类型
+  QString getTypeString() const {
+    if (type == Type::Client) {
+      return "Client";
+    } else {
+      return "Server";
+    }
+  }
  signals:
   void validated(TcpConnection *);
+  void recvMessage(QJsonObject *content);
+
+ public slots:
+  void sendMessage(QJsonObject *content);
 
  private slots:
+  void readyRead();
   void recvGreeting();
 
  private:

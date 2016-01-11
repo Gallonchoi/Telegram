@@ -8,6 +8,7 @@
 #include "tcpserver.h"
 #include "tcpclient.h"
 #include "tcpconnection.h"
+#include "inboxwidget.h"
 #include <QDebug>
 #include <QObject>
 #include <QNetworkInterface>
@@ -38,75 +39,69 @@ MainWindow::MainWindow(const QString &title, QWidget *parent)
   connect(nameEdit, SIGNAL(textChanged(QString)), this,
           SIGNAL(nameEditChanged(QString)));
 
-  // 扫描窗口设置
-  // 初始化广播扫描器
-  /*scannerRequest = new QJsonObject{{"username", ui->nameEdit->text()},
-                                   {"ip", ui->ipAddressEdit->text()}};
-  scanWindow->initScanner(23333, scannerRequest);
-  connect(scanWindow, SIGNAL(gotNewConnection(TcpConnection *)), this,
-          SLOT(getNewConnection(TcpConnection *)));
-  // 显示窗口事件
-  QPushButton *scanButton = ui->scanButton;
-  connect(scanButton, SIGNAL(clicked()), this, SLOT(showScanWindow()));
-  this->setWindowTitle("Telegram");
-  this->setFixedSize(this->width(), this->height());
-  // 隐藏窗口
-  connect(scanWindow, SIGNAL(hid()), this, SLOT(hideScanWindow()));
-  // 信息发送设置
-  QLineEdit *msgEdit = ui->messageEdit;
-  connect(msgEdit, SIGNAL(textChanged(QString)), this,
-          SLOT(refreshMsgLength(QString)));
-  QLabel *msgLengthLabel = ui->messageLengthLabel;
-  msgLengthLabel->setText(QString("%1/%2")
-                              .arg(msgEdit->text().length(), 2)
-                              .arg(msgEdit->maxLength())); */
+  // 聊天历史tab
+  auto inboxTab = ui->inboxTab;
+  inboxTab->clear();
+  connect(inboxTab, &QTabWidget::tabCloseRequested, [this](const int index) {
+    auto tabItem = tabList[index];
+    tabItem->closeConnection();
+  });
 }
 
 MainWindow::~MainWindow() { delete ui; }
 
-// 更新'输入框'长度
-void MainWindow::refreshMsgLength(const QString &content) {
-  QLabel *msgLengthLabel = ui->messageLengthLabel;
-  QLineEdit *msgEdit = ui->messageEdit;
-  msgLengthLabel->setText(
-      QString("%1/%2").arg(content.length(), 2).arg(msgEdit->maxLength()));
-}
-
+// 获取用户名
 QString MainWindow::getName() const { return ui->nameEdit->text(); }
 
-void MainWindow::setName(const QString &) {}
-
+// 添加新连接
 void MainWindow::appendConnection(TcpConnection *conn) {
   auto userInfo = conn->getUserInfo();
-  qDebug() << conn << userInfo;
-  //  qDebug() << (*userInfo)["name"];
+  const auto name = userInfo["name"].toString();
+  const auto ip = userInfo["ip"].toString();
+  const auto type = conn->getTypeString();
+
+  // 更新连接总数
+  if (conn->type == TcpConnection::Type::Server) {
+    ui->serverConnEdit->setText(
+        QString::number(ui->serverConnEdit->text().toInt() + 1));
+  } else {
+    ui->clientConnEdit->setText(
+        QString::number(ui->clientConnEdit->text().toInt() + 1));
+  }
+  // 添加连接窗口tab
+  auto inboxTab = ui->inboxTab;
+  auto connTabItem = new InboxWidget(conn);
+  inboxTab->addTab(connTabItem, name);
+  const int index = inboxTab->indexOf(connTabItem);
+  tabList.insert(index, connTabItem);
+
+  // 添加连接到连接列表
+  auto connTable = ui->connTable;
+  connTable->insertRow(connTable->rowCount());
+  auto idItem = new QTableWidgetItem(QString::number(index));
+  auto nameItem = new QTableWidgetItem(name);
+  auto ipItem = new QTableWidgetItem(ip);
+  auto typeItem = new QTableWidgetItem(type);
+  connTable->setItem(connTable->rowCount() - 1, 0, idItem);
+  connTable->setItem(connTable->rowCount() - 1, 1, nameItem);
+  connTable->setItem(connTable->rowCount() - 1, 2, ipItem);
+  connTable->setItem(connTable->rowCount() - 1, 4, typeItem);
+
+  // 当连接销毁时，从连接列表中去除连接
+  connect(conn, &TcpConnection::destroyed, [this, conn, connTable, index] {
+    if (conn->type == TcpConnection::Type::Server) {
+      ui->serverConnEdit->setText(
+          QString::number(ui->serverConnEdit->text().toInt() - 1));
+    } else {
+      ui->clientConnEdit->setText(
+          QString::number(ui->clientConnEdit->text().toInt() - 1));
+    }
+
+    for (int i = 0; i < connTable->rowCount(); ++i) {
+      if (connTable->item(i, 0)->text().toInt() == index) {
+        connTable->removeRow(i);
+        break;
+      }
+    }
+  });
 }
-
-// 更换通信频道动作
-void MainWindow::changeChannelTo(TcpConnection *) {
-  //  QTextBrowser *inboxBrowser = ui->inboxBrowser;
-  //  QTableWidget *connTable = ui->connTable;
-  //  const QString username = connTable->item(row, 0)->text();
-  //  const QString ipAddress = connTable->item(row, 1)->text();
-  //  inboxBrowser->append(
-  //      QString("Changing channel to %1(%2)").arg(username).arg(ipAddress));
-}
-
-// 收到新连接
-// void MainWindow::getNewConnection(TcpConnection *conn) {
-//  if (conn->type == TcpConnection::Type::Server) {
-//    serverConnections.append(conn);
-//    ui->serverConnEdit->setText(QString::number(serverConnections.size()));
-//  } else {
-//    clientConnections.append(conn);
-//    ui->clientConnEdit->setText(QString::number(clientConnections.size()));
-//  }
-//  auto userInfo = conn->userInfo;
-
-//  QTableWidget *connTable = ui->connTable;
-//  connTable->insertRow(connTable->rowCount());
-//  auto username = new QTableWidgetItem((*userInfo)["username"].toString());
-//  auto ip = new QTableWidgetItem((*userInfo)["ip"].toString());
-//  connTable->setItem(connTable->rowCount() - 1, 0, username);
-//  connTable->setItem(connTable->rowCount() - 1, 1, ip);
-//}

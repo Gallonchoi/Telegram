@@ -19,7 +19,6 @@ SOURCES +=\
     logwindow.cc \
     aboutwindow.cc \
     connectwindow.cc \
-    chattingserver.cc \
     udpscanner.cc \
     udplistener.cc \
     tcpserver.cc \
@@ -27,7 +26,8 @@ SOURCES +=\
     filesender.cc \
     filereceiver.cc \
     tcpconnection.cc \
-    greeting.cc
+    greeting.cc \
+    inboxwidget.cc
 
 HEADERS  += \
     mainwindow.h \
@@ -35,7 +35,6 @@ HEADERS  += \
     logwindow.h \
     aboutwindow.h \
     connectwindow.h \
-    chattingserver.h \
     serverstatus.h \
     udpscanner.h \
     udplistener.h \
@@ -44,14 +43,16 @@ HEADERS  += \
     filesender.h \
     filereceiver.h \
     tcpconnection.h \
-    greeting.h
+    greeting.h \
+    inboxwidget.h
 
 FORMS += \
          mainwindow.ui \
          scanwindow.ui \
     logwindow.ui \
     aboutwindow.ui \
-    connectwindow.ui
+    connectwindow.ui \
+    inboxwidget.ui
 
 CONFIG += c++11
 

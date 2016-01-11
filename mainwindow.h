@@ -2,16 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QList>
+#include <QMap>
 
-class ScanWindow;
-class LogWindow;
-class AboutWindow;
-class ConnectWindow;
-class UdpListener;
 class QJsonObject;
-class TcpServer;
 class TcpConnection;
+class InboxWidget;
 
 namespace Ui {
 class MainWindow;
@@ -35,15 +30,11 @@ class MainWindow : public QMainWindow {
   void nameEditChanged(const QString &);
 
  public slots:
-  void setName(const QString &);
   void appendConnection(TcpConnection *);
-  void changeChannelTo(TcpConnection *);
-
- private slots:
-  void refreshMsgLength(const QString &content);
 
  private:
   Ui::MainWindow *ui;
+  QMap<int, InboxWidget *> tabList;  // 以tab中的index为key， tab为Value
 };
 
 #endif  // MAINWINDOW_H
