@@ -24,13 +24,6 @@
    </property>
    <layout class="QHBoxLayout" name="scanButtonLayout">
     <item>
-     <widget class="QPushButton" name="connectButton">
-      <property name="text">
-       <string>Connect</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QPushButton" name="refreshButton">
       <property name="text">
        <string>Refresh</string>

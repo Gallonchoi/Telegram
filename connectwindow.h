@@ -7,6 +7,8 @@ namespace Ui {
 class connectWindow;
 }
 
+class TcpClient;
+
 class ConnectWindow : public QDialog {
   Q_OBJECT
 
@@ -14,11 +16,14 @@ class ConnectWindow : public QDialog {
   explicit ConnectWindow(const QString &title, QWidget *parent = 0);
   ~ConnectWindow();
 
+  void initTcpClient(TcpClient *client) { tcpClient = client; }
+
  private slots:
-  void hid();
+  void connectTo();
 
  private:
   Ui::connectWindow *ui;
+  TcpClient *tcpClient;
 };
 
 #endif  // CONNECTWINDOW_H

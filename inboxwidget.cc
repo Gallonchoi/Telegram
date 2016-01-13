@@ -4,10 +4,16 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTime>
+#include <QTimer>
+#include <QElapsedTimer>
 #include <QTabWidget>
+#include <QUdpSocket>
 
 InboxWidget::InboxWidget(TcpConnection *connection, QWidget *parent)
-    : QWidget(parent), connection(connection), ui(new Ui::InboxWidget) {
+    : QWidget(parent),
+      connection(connection),
+      ui(new Ui::InboxWidget),
+      latencyTimer(new QTimer) {
   ui->setupUi(this);
   // 信息输入框长度提示
   auto msgEdit = ui->messageEdit;
@@ -40,21 +46,43 @@ InboxWidget::InboxWidget(TcpConnection *connection, QWidget *parent)
   connect(connection, &TcpConnection::recvMessage, this,
           &InboxWidget::recvMessage);
 
+  // 延迟获取， 默认10秒获取一次
+  latencySocket = new QUdpSocket;
+  latencyEpapsedTimer = new QElapsedTimer;
+  connect(latencyTimer, &QTimer::timeout, this, &InboxWidget::getLatency);
+  connect(latencySocket, &QUdpSocket::readyRead, [this] {
+    QByteArray datagram;
+    datagram.resize(latencySocket->pendingDatagramSize());
+    this->latencySocket->readDatagram(datagram.data(), datagram.size());
+    auto latency = latencyEpapsedTimer->elapsed();
+    gotLatency(QString("%1 ms").arg(latency));
+  });
+  latencyTimer->start(10 * 1000);
+
   // 连接不可用时，禁用此tab
   connect(connection, &TcpConnection::destroyed, [this] {
+    this->displayAlertMsg("连接断开");
     disconnect();
     this->setDisabled(true);
+    delete latencyTimer;
+    delete latencySocket;
+    delete latencyEpapsedTimer;
   });
 
   // 主动关闭连接
-  connect(this, &InboxWidget::closeConnection, [this] {
-    this->connection->deleteLater();
-    disconnect();
-    this->setDisabled(true);
-  });
+  connect(this, &InboxWidget::closeConnection,
+          [this] { this->connection->deleteLater(); });
 }
 
 InboxWidget::~InboxWidget() { delete ui; }
+
+// 获取延迟
+void InboxWidget::getLatency() {
+  latencyEpapsedTimer->start();
+  QByteArray datagram = "";
+  latencySocket->writeDatagram(datagram, connection->getHost(),
+                               connection->getPort());
+}
 
 // 更新'输入框'长度
 void InboxWidget::refreshMsgLength(const QString &content) {
@@ -86,7 +114,7 @@ void InboxWidget::displayAlertMsg(const QString &content) {
   contentLabel->setStyleSheet(
       "border: 1px solid;"
       "margin: 10px 0px;"
-      "padding:15px 10px 15px 50px;"
+      "padding:10px 10px 10px 10px;"
       "background-repeat: no-repeat;"
       "background-position: 10px center;"
       "color: #D8000C;"
@@ -102,7 +130,7 @@ void InboxWidget::displayInfoMsg(const QString &content) {
   contentLabel->setStyleSheet(
       "border: 1px solid;"
       "margin: 10px 0px;"
-      "padding:15px 10px 15px 50px;"
+      "padding:10px 10px 10px 10px;"
       "background-repeat: no-repeat;"
       "background-position: 10px center;"
       "color: #00529B;"

@@ -22,6 +22,10 @@ TcpConnection::TcpConnection(QTcpSocket *tcpSocket, Type type,
 
 TcpConnection::~TcpConnection() { delete tcpSocket; }
 
+QHostAddress TcpConnection::getHost() const { return tcpSocket->peerAddress(); }
+
+quint16 TcpConnection::getPort() const { return tcpSocket->peerPort(); }
+
 // 接收握手请求或回应
 void TcpConnection::recvGreeting() {
   disconnect(tcpSocket, SIGNAL(readyRead()), 0, 0);
@@ -36,16 +40,16 @@ void TcpConnection::recvGreeting() {
   connect(tcpSocket, &QTcpSocket::readyRead, this, &TcpConnection::readyRead);
 }
 
+// 接收信息
 void TcpConnection::readyRead() {
-  qDebug() << "read";
   QByteArray data = tcpSocket->readAll();
   auto message = new QJsonObject(QJsonDocument::fromBinaryData(data).object());
   message->insert("time", QJsonValue(QTime::currentTime().toString()));
   recvMessage(message);
 }
 
+// 发送信息
 void TcpConnection::sendMessage(QJsonObject *content) {
-  qDebug() << "send";
   QJsonDocument data(*content);
   QByteArray msg = data.toBinaryData();
   tcpSocket->write(msg);

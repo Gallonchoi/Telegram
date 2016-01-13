@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QJsonObject>
+#include <QHostAddress>
 
 class QTcpSocket;
 class Greeting;
@@ -23,6 +24,9 @@ class TcpConnection : public QObject {
       return "Server";
     }
   }
+  QHostAddress getHost() const;
+  quint16 getPort() const;
+
  signals:
   void validated(TcpConnection *);
   void recvMessage(QJsonObject *content);

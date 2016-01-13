@@ -6,7 +6,6 @@
 #include "mainwindow.h"
 #include "scanwindow.h"
 #include "connectwindow.h"
-#include "logwindow.h"
 #include "aboutwindow.h"
 #include "udplistener.h"
 #include "tcpserver.h"
@@ -39,29 +38,31 @@ int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   auto mainWindow = new MainWindow("Telegram");
   auto scanWindow = new ScanWindow("扫描");
-  auto logWindow = new LogWindow("日志");
   auto connectWindow = new ConnectWindow("连接到");
   auto aboutWindow = new AboutWindow("关于");
   // 按键事件
-  QObject::connect(mainWindow, SIGNAL(scanButtonClicked(bool)), scanWindow,
-                   SLOT(show()));
-  QObject::connect(mainWindow, SIGNAL(logButtonClicked(bool)), logWindow,
-                   SLOT(show()));
-  QObject::connect(mainWindow, SIGNAL(connectButtonClicked(bool)),
-                   connectWindow, SLOT(show()));
-  QObject::connect(mainWindow, SIGNAL(aboutButtonClicked(bool)), aboutWindow,
-                   SLOT(show()));
+  QObject::connect(mainWindow, &MainWindow::scanButtonClicked, scanWindow,
+                   &ScanWindow::show);
+  QObject::connect(mainWindow, &MainWindow::connectButtonClicked, connectWindow,
+                   &ConnectWindow::show);
+  QObject::connect(mainWindow, &MainWindow::aboutButtonClicked, aboutWindow,
+                   &AboutWindow::show);
 
   auto ips = getIPAddress();
+  const auto ipString = ips.join("/");
 
+  mainWindow->setIpAddress(ipString);
+
+  // tcp和udp请求信息
   auto tcpGreetingMsg = new Greeting;
   auto udpGreetingMsg = new Greeting;
   tcpGreetingMsg->msg = new QJsonObject{{"name", mainWindow->getName()},
-                                        {"ip", ips.join("/")},
+                                        {"ip", ipString},
                                         {"port", TCP_SERVER_PORT}};
   udpGreetingMsg->msg = new QJsonObject{{"name", mainWindow->getName()},
-                                        {"ip", ips.join("/")},
+                                        {"ip", ipString},
                                         {"port", UDP_LISTENER_PORT}};
+  // 更新用户名
   QObject::connect(mainWindow, &MainWindow::nameEditChanged,
                    [tcpGreetingMsg, udpGreetingMsg](const QString &name) {
                      tcpGreetingMsg->updateValue("name", name);
@@ -80,6 +81,7 @@ int main(int argc, char *argv[]) {
   tcpClient->setGreetingMsg(tcpGreetingMsg);
   QObject::connect(tcpClient, SIGNAL(connected(TcpConnection *)), mainWindow,
                    SLOT(appendConnection(TcpConnection *)));
+  connectWindow->initTcpClient(tcpClient);
 
   // udp 监听器
   auto udpListener = new UdpListener(UDP_LISTENER_PORT);
@@ -88,7 +90,7 @@ int main(int argc, char *argv[]) {
 
   // udp扫描器
   scanWindow->initScanner(UDP_LISTENER_PORT, udpGreetingMsg);
-  scanWindow->initTcpClient(tcpClient);
+  scanWindow->initTcpClient(tcpClient);  // 设置唯一TCPclient
   mainWindow->show();
   return app.exec();
 }

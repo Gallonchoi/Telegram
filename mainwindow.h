@@ -31,6 +31,7 @@ class MainWindow : public QMainWindow {
 
  public slots:
   void appendConnection(TcpConnection *);
+  void setIpAddress(const QString &);
 
  private:
   Ui::MainWindow *ui;

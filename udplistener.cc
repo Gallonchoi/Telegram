@@ -15,7 +15,7 @@ void UdpListener::start() {
   // 初始化socket 并监听端口
   udpSocket = new QUdpSocket;
   udpSocket->bind(QHostAddress::AnyIPv4, port);
-  connect(udpSocket, SIGNAL(readyRead()), this, SLOT(getRequest()));
+  connect(udpSocket, &QUdpSocket::readyRead, this, &UdpListener::getRequest);
 }
 
 // 获取到请求, 返回应答

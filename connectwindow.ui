@@ -45,17 +45,35 @@
      <x>10</x>
      <y>30</y>
      <width>411</width>
-     <height>41</height>
+     <height>48</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="ipLayout">
     <item row="0" column="1">
-     <widget class="QLineEdit" name="ipEdit"/>
+     <widget class="QLineEdit" name="ipEdit">
+      <property name="text">
+       <string>127.0.0.1</string>
+      </property>
+     </widget>
     </item>
     <item row="0" column="0">
      <widget class="QLabel" name="ipLabel">
       <property name="text">
        <string>Remote IP Address: </string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="portLabel">
+      <property name="text">
+       <string>Remote Port</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="portEdit">
+      <property name="text">
+       <string>23333</string>
       </property>
      </widget>
     </item>

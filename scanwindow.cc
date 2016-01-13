@@ -90,4 +90,5 @@ void ScanWindow::tryToConnect(int row, int) {
   const quint16 port = serverTable->item(row, 2)->text().toInt();
   QHostAddress *host = new QHostAddress(ipAddress);
   tcpClient->connectTo(host, port);
+  hide();
 }

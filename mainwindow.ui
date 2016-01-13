@@ -244,13 +244,6 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="logButton">
-         <property name="text">
-          <string>Log</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
     </layout>
@@ -274,7 +267,6 @@
      <attribute name="title">
       <string>Tab 1</string>
      </attribute>
-     <zorder>inboxScrollArea</zorder>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">

@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "scanwindow.h"
-#include "logwindow.h"
 #include "aboutwindow.h"
 #include "connectwindow.h"
 #include "udplistener.h"
@@ -21,27 +20,25 @@ MainWindow::MainWindow(const QString &title, QWidget *parent)
   this->setFixedSize(this->width(), this->height());
 
   auto scanButton = ui->scanButton;
-  auto logButton = ui->logButton;
   auto connectToButton = ui->connectToButton;
   auto aboutButton = ui->aboutButton;
 
-  connect(scanButton, SIGNAL(clicked(bool)), this,
-          SIGNAL(scanButtonClicked(bool)));
-  connect(logButton, SIGNAL(clicked(bool)), this,
-          SIGNAL(logButtonClicked(bool)));
-  connect(connectToButton, SIGNAL(clicked(bool)), this,
-          SIGNAL(connectButtonClicked(bool)));
-  connect(aboutButton, SIGNAL(clicked(bool)), this,
-          SIGNAL(aboutButtonClicked(bool)));
+  connect(scanButton, &QPushButton::clicked, this,
+          &MainWindow::scanButtonClicked);
+  connect(connectToButton, &QPushButton::clicked, this,
+          &MainWindow::connectButtonClicked);
+  connect(aboutButton, &QPushButton::clicked, this,
+          &MainWindow::aboutButtonClicked);
 
   auto nameEdit = ui->nameEdit;
 
-  connect(nameEdit, SIGNAL(textChanged(QString)), this,
-          SIGNAL(nameEditChanged(QString)));
+  connect(nameEdit, &QLineEdit::textChanged, this,
+          &MainWindow::nameEditChanged);
 
   // 聊天历史tab
   auto inboxTab = ui->inboxTab;
   inboxTab->clear();
+  // 关闭事件
   connect(inboxTab, &QTabWidget::tabCloseRequested, [this](const int index) {
     auto tabItem = tabList[index];
     tabItem->closeConnection();
@@ -49,6 +46,10 @@ MainWindow::MainWindow(const QString &title, QWidget *parent)
 }
 
 MainWindow::~MainWindow() { delete ui; }
+
+void MainWindow::setIpAddress(const QString &ip) {
+  ui->ipAddressEdit->setText(ip);
+}
 
 // 获取用户名
 QString MainWindow::getName() const { return ui->nameEdit->text(); }
@@ -86,6 +87,19 @@ void MainWindow::appendConnection(TcpConnection *conn) {
   connTable->setItem(connTable->rowCount() - 1, 1, nameItem);
   connTable->setItem(connTable->rowCount() - 1, 2, ipItem);
   connTable->setItem(connTable->rowCount() - 1, 4, typeItem);
+
+  // 获取延迟
+  connect(connTabItem, &InboxWidget::gotLatency,
+          [connTable, index](const QString &latency) {
+            for (int i = 0; i < connTable->rowCount(); ++i) {
+              if (connTable->item(i, 0)->text().toInt() == index) {
+                auto latencyItem = new QTableWidgetItem(latency);
+                connTable->setItem(i, 3, latencyItem);
+                break;
+              }
+            }
+          });
+  connTabItem->getLatency();
 
   // 当连接销毁时，从连接列表中去除连接
   connect(conn, &TcpConnection::destroyed, [this, conn, connTable, index] {

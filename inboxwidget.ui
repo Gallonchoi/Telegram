@@ -115,13 +115,6 @@ color: rgb(107, 107, 107);</string>
       </property>
      </widget>
     </item>
-    <item>
-     <widget class="QPushButton" name="fileButton">
-      <property name="text">
-       <string>File</string>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
  </widget>

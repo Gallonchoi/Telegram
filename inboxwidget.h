@@ -8,6 +8,9 @@ class InboxWidget;
 }
 
 class TcpConnection;
+class QTimer;
+class QUdpSocket;
+class QElapsedTimer;
 
 class InboxWidget : public QWidget {
   Q_OBJECT
@@ -18,7 +21,10 @@ class InboxWidget : public QWidget {
 
  signals:
   void closeConnection();
+  void gotLatency(const QString &);
 
+ public slots:
+  void getLatency();
  private slots:
   void refreshMsgLength(const QString &content);
   void sendMessage();
@@ -31,6 +37,9 @@ class InboxWidget : public QWidget {
  private:
   Ui::InboxWidget *ui;
   TcpConnection *connection;
+  QTimer *latencyTimer;
+  QElapsedTimer *latencyEpapsedTimer;
+  QUdpSocket *latencySocket;
 };
 
 #endif  // INBOXWIDGET_H

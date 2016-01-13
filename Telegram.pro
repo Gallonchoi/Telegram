@@ -16,15 +16,12 @@ SOURCES +=\
     main.cc \
     mainwindow.cc \
     scanwindow.cc \
-    logwindow.cc \
     aboutwindow.cc \
     connectwindow.cc \
     udpscanner.cc \
     udplistener.cc \
     tcpserver.cc \
     tcpclient.cc \
-    filesender.cc \
-    filereceiver.cc \
     tcpconnection.cc \
     greeting.cc \
     inboxwidget.cc
@@ -32,7 +29,6 @@ SOURCES +=\
 HEADERS  += \
     mainwindow.h \
     scanwindow.h \
-    logwindow.h \
     aboutwindow.h \
     connectwindow.h \
     serverstatus.h \
@@ -40,8 +36,6 @@ HEADERS  += \
     udplistener.h \
     tcpserver.h \
     tcpclient.h \
-    filesender.h \
-    filereceiver.h \
     tcpconnection.h \
     greeting.h \
     inboxwidget.h
@@ -49,7 +43,6 @@ HEADERS  += \
 FORMS += \
          mainwindow.ui \
          scanwindow.ui \
-    logwindow.ui \
     aboutwindow.ui \
     connectwindow.ui \
     inboxwidget.ui
